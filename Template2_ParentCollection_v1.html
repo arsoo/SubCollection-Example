@@ -219,8 +219,8 @@
       text-decoration: none; color: var(--ink); transition: all 0.25s;
     }
     .group-card:hover { border-color: var(--red-primary); transform: translateY(-4px); box-shadow: 0 10px 24px rgba(184,50,40,0.1); }
-    .group-card-img { width: 100%; height: 110px; object-fit: cover; transition: transform 0.4s; }
-    .group-card:hover .group-card-img { transform: scale(1.05); }
+    .group-card-img { width: 100%; height: 110px; object-fit: contain; background: #ffffff; padding: 10px; transition: transform 0.4s; }
+    .group-card:hover .group-card-img { transform: scale(1.06); }
     .group-card-label { padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; font-weight: 700; gap: 6px; border-top: 1px solid var(--border); }
     .group-card-label i { color: var(--ink-soft); font-size: 10px; flex-shrink: 0; transition: color 0.2s; }
     .group-card:hover .group-card-label { color: var(--red-primary); }
