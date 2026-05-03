@@ -97,6 +97,16 @@
 
     /* Sub-collection grid */
     .subcol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+
+    /* Pagination */
+    .browse-util { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .browse-count { font-size: 13.5px; color: var(--ink-muted); }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 36px 0 8px; }
+    .pg-btn { min-width: 40px; height: 40px; padding: 0 14px; border-radius: 8px; border: 1.5px solid var(--border); background: white; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--ink-muted); transition: all 0.2s; font-family: var(--sans); }
+    .pg-btn:hover:not(:disabled) { border-color: var(--red-primary); color: var(--red-primary); }
+    .pg-btn.active { background: var(--red-primary); border-color: var(--red-primary); color: white; }
+    .pg-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pg-dots { color: var(--ink-soft); font-size: 14px; padding: 0 4px; }
     .subcol-card { border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; background: white; transition: all 0.3s; display: flex; flex-direction: column; text-decoration: none; color: var(--ink); }
     .subcol-card:hover { transform: translateY(-6px); box-shadow: 0 16px 32px rgba(184,50,40,0.1); border-color: var(--red-primary); }
     .subcol-img { height: 160px; overflow: hidden; background: var(--bg-cream); }
@@ -755,7 +765,10 @@
     <section class="section">
       <h2 class="section-title">Browse All Binding Machine Collections</h2>
       <p class="section-sub">Find the right binding system for your needs — from everyday office use to high-volume commercial production.</p>
-      <div class="subcol-grid">
+      <div class="browse-util">
+        <span class="browse-count" id="browse-count">Showing 1–12 of 21 Collections</span>
+      </div>
+      <div class="subcol-grid" id="browse-grid">
 
         <a href="/collections/comb-binding-machines" class="subcol-card">
           <div class="subcol-img"><img src="https://www.mybinding.com/cdn/shop/collections/Comb-Binding-Machine-Collection.jpg?v=1754646986&width=300" alt="Comb Binding Machines" loading="lazy"></div>
@@ -947,6 +960,15 @@
         </a>
 
       </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination" id="browse-pagination">
+        <button class="pg-btn" id="pg-prev" onclick="browsePage(currentBrowsePage - 1)" disabled>&#8592; Prev</button>
+        <button class="pg-btn active" id="pg-1" onclick="browsePage(1)">1</button>
+        <button class="pg-btn" id="pg-2" onclick="browsePage(2)">2</button>
+        <button class="pg-btn" id="pg-next" onclick="browsePage(currentBrowsePage + 1)">Next &#8594;</button>
+      </div>
+
     </section>
 
     <!-- PROMO BANNER: Fast Shipping -->
@@ -1290,6 +1312,39 @@
 
   <script>
     function t(el) { el.parentElement.classList.toggle('on'); }
+
+    const BROWSE_PER_PAGE = 12;
+    let currentBrowsePage = 1;
+
+    function browsePage(page) {
+      const cards = Array.from(document.querySelectorAll('#browse-grid .subcol-card'));
+      const total = cards.length;
+      const totalPages = Math.ceil(total / BROWSE_PER_PAGE);
+      if (page < 1 || page > totalPages) return;
+      currentBrowsePage = page;
+
+      const start = (page - 1) * BROWSE_PER_PAGE;
+      const end = Math.min(start + BROWSE_PER_PAGE, total);
+
+      cards.forEach((card, i) => {
+        card.style.display = (i >= start && i < end) ? '' : 'none';
+      });
+
+      document.getElementById('browse-count').textContent =
+        `Showing ${start + 1}–${end} of ${total} Collections`;
+
+      for (let p = 1; p <= totalPages; p++) {
+        const btn = document.getElementById('pg-' + p);
+        if (btn) btn.classList.toggle('active', p === page);
+      }
+
+      document.getElementById('pg-prev').disabled = page === 1;
+      document.getElementById('pg-next').disabled = page === totalPages;
+
+      document.getElementById('browse-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => browsePage(1));
   </script>
 </body>
 </html>
