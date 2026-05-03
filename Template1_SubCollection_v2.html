@@ -1131,9 +1131,15 @@
         </div>
 
         <!-- SHOWING / PAGINATION -->
-        <div style="text-align:center; padding: 40px 0 10px;">
-          <p style="font-size:14px; color:var(--ink-muted);">Showing <strong style="color:var(--ink);">35</strong> of <strong style="color:var(--ink);">35</strong> products</p>
-          <div style="width:200px; height:3px; background:linear-gradient(90deg, var(--red-primary), var(--red-dark)); border-radius:2px; margin:10px auto 0;"></div>
+        <div style="text-align:center; padding: 32px 0 8px;">
+          <p style="font-size:14px; color:var(--ink-muted);" id="prod-count">Showing <strong style="color:var(--ink);">1–20</strong> of <strong style="color:var(--ink);">35</strong> products</p>
+          <div style="width:200px; height:3px; background:linear-gradient(90deg, var(--red-primary), var(--red-dark)); border-radius:2px; margin:10px auto 20px;"></div>
+          <div style="display:flex; justify-content:center; align-items:center; gap:8px;" id="prod-pagination">
+            <button id="prod-prev" onclick="productPage(currentProductPage - 1)" disabled style="min-width:40px;height:40px;padding:0 14px;border-radius:8px;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:14px;font-weight:700;color:var(--ink-muted);transition:all 0.2s;font-family:var(--sans);">&#8592; Prev</button>
+            <button id="prod-pg-1" onclick="productPage(1)" style="width:40px;height:40px;border-radius:8px;border:1.5px solid var(--red-primary);background:var(--red-primary);color:white;cursor:pointer;font-size:14px;font-weight:700;transition:all 0.2s;font-family:var(--sans);">1</button>
+            <button id="prod-pg-2" onclick="productPage(2)" style="width:40px;height:40px;border-radius:8px;border:1.5px solid var(--border);background:white;color:var(--ink-muted);cursor:pointer;font-size:14px;font-weight:700;transition:all 0.2s;font-family:var(--sans);">2</button>
+            <button id="prod-next" onclick="productPage(currentProductPage + 1)" style="min-width:40px;height:40px;padding:0 14px;border-radius:8px;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:14px;font-weight:700;color:var(--ink-muted);transition:all 0.2s;font-family:var(--sans);">Next &#8594;</button>
+          </div>
         </div>
 
       </main>
@@ -1441,20 +1447,66 @@
       }
     }
 
+    let perPage = 20;
+    let currentProductPage = 1;
+
     function setPerPage(n) {
+      perPage = n;
+      currentProductPage = 1;
       [20, 40, 60].forEach(v => {
         const el = document.getElementById('pp-' + v);
         if (v === n) {
-          el.style.fontWeight = '800';
-          el.style.color = 'var(--ink)';
-          el.style.textDecoration = 'underline';
+          el.style.fontWeight = '800'; el.style.color = 'var(--ink)'; el.style.textDecoration = 'underline';
         } else {
-          el.style.fontWeight = '400';
-          el.style.color = 'var(--ink-muted)';
-          el.style.textDecoration = 'none';
+          el.style.fontWeight = '400'; el.style.color = 'var(--ink-muted)'; el.style.textDecoration = 'none';
         }
       });
+      productPage(1);
     }
+
+    function productPage(page) {
+      const cards = Array.from(document.querySelectorAll('.pgrid .pc'));
+      const total = cards.length;
+      const totalPages = Math.ceil(total / perPage);
+      if (page < 1 || page > totalPages) return;
+      currentProductPage = page;
+
+      const start = (page - 1) * perPage;
+      const end = Math.min(start + perPage, total);
+
+      cards.forEach((c, i) => { c.style.display = (i >= start && i < end) ? '' : 'none'; });
+
+      // Update count text
+      const countEl = document.getElementById('prod-count');
+      if (countEl) countEl.innerHTML = `Showing <strong style="color:var(--ink);">${start + 1}–${end}</strong> of <strong style="color:var(--ink);">${total}</strong> products`;
+
+      // Rebuild page buttons dynamically
+      const pag = document.getElementById('prod-pagination');
+      if (!pag) return;
+      const prevBtn = document.getElementById('prod-prev');
+      const nextBtn = document.getElementById('prod-next');
+
+      prevBtn.disabled = page === 1;
+      prevBtn.style.opacity = page === 1 ? '0.35' : '1';
+      prevBtn.style.cursor = page === 1 ? 'not-allowed' : 'pointer';
+      nextBtn.disabled = page === totalPages;
+      nextBtn.style.opacity = page === totalPages ? '0.35' : '1';
+      nextBtn.style.cursor = page === totalPages ? 'not-allowed' : 'pointer';
+
+      for (let p = 1; p <= 10; p++) {
+        const btn = document.getElementById('prod-pg-' + p);
+        if (!btn) break;
+        const isActive = p === page;
+        btn.style.background = isActive ? 'var(--red-primary)' : 'white';
+        btn.style.borderColor = isActive ? 'var(--red-primary)' : 'var(--border)';
+        btn.style.color = isActive ? 'white' : 'var(--ink-muted)';
+        btn.style.display = p <= totalPages ? '' : 'none';
+      }
+
+      document.querySelector('.pgrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => productPage(1));
   </script>
 </body>
 </html>
